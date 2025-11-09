@@ -76,15 +76,37 @@ async function connectToDatabase() {
   }
 }
 
-// CORS Configuration - Allow all origins for Vercel
+const allowedOrigins = [
+  'https://segese-medical-clinic-fullstack-kjv30kenv.vercel.app',
+  'https://segese-medical-clinic.vercel.app', // optional if same project
+  'http://localhost:5173' // for local dev
+];
+
 app.use(cors({
-  origin: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   optionsSuccessStatus: 200,
 }));
+
+
+// CORS Configuration - Allow all origins for Vercel
+// app.use(cors({
+//   origin: true,
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+//   exposedHeaders: ['Content-Range', 'X-Content-Range'],
+//   optionsSuccessStatus: 200,
+// }));
 
 // Handle preflight requests
 app.options('*', cors());
