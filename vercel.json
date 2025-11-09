@@ -11,12 +11,23 @@
   ],
   "rewrites": [
     {
+      "source": "/api/health",
+      "destination": "/api/index.js"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/index.js"
     },
     {
       "source": "/uploads/:path*",
       "destination": "/api/index.js"
+    },
+    {
+      "source": "/((?!api|uploads).*)",
+      "destination": "/frontend/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
