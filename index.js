@@ -115,7 +115,7 @@ const allowedOrigins = [
   'https://localhost:3000',
   'https://localhost:5000',
   'http://192.168.43.25:3000',
-  ''
+  'https://segese-medical-clinic.vercel.app',
 ];
 
 // Add FRONTEND_URL from env if it exists
