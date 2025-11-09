@@ -77,17 +77,23 @@ async function connectToDatabase() {
 }
 
 const allowedOrigins = [
-  'https://segese-medical-clinic-fullstack-kjv30kenv.vercel.app',
-  'https://segese-medical-clinic.vercel.app', // optional if same project
-  'http://localhost:5173' // for local dev
+  // List static domains
+  'https://segese-medical-clinic.vercel.app', 
+  'http://localhost:5173'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Check if the origin is explicitly allowed
+    const isAllowed = !origin || allowedOrigins.includes(origin);
+
+    // OR, check if it's a dynamic Vercel preview deployment URL
+    const isVercelPreview = origin && origin.endsWith('.vercel.app') && origin.includes('segese-medical-clinic-fullstack');
+    
+    if (isAllowed || isVercelPreview) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
