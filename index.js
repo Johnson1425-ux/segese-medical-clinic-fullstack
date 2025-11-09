@@ -70,6 +70,21 @@ async function connectToDatabase() {
   }
 }
 
+// CORS Headers Middleware - Apply to ALL requests FIRST
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  
+  next();
+});
+
 // Security Middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -81,6 +96,7 @@ app.use(helmet({
       scriptSrc: ["'self'"],
     },
   },
+  crossOriginResourcePolicy: false,
 }));
 
 // Body parser
@@ -92,9 +108,9 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
 
-// CORS - Simplified configuration for Vercel
+// CORS package (as backup)
 app.use(cors({
-  origin: true, // Allow all origins
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
@@ -102,9 +118,6 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-
-// Explicitly handle preflight requests
-app.options('*', cors());
 
 app.use(compression());
 
