@@ -3,9 +3,11 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: 'public', // Ensure public folder exists and is copied
   build: {
     outDir: 'dist',
     sourcemap: false,
+    copyPublicDir: true, // Explicitly copy public directory contents
   },
   server: {
     host: '0.0.0.0',
