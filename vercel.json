@@ -26,8 +26,5 @@
       "source": "/((?!api|uploads).*)",
       "destination": "/frontend/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
