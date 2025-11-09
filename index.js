@@ -99,6 +99,7 @@ const corsOptions = {
       process.env.FRONTEND_URL,
       'http://localhost:3000',
       'https://localhost:3000',
+      'https://segese-medical-clinic.vercel.app'
     ].filter(Boolean);
 
     if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
