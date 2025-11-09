@@ -9,38 +9,38 @@ import hpp from 'hpp';
 import mongoose from 'mongoose';
 
 // Import routes from server folder
-import authRoutes from '../server/routes/auth.js';
-import userRoutes from '../server/routes/users.js';
-import patientRoutes from '../server/routes/patients.js';
-import doctorRoutes from '../server/routes/doctors.js';
-import surgeonRoutes from '../server/routes/surgeons.js';
-import nurseRoutes from '../server/routes/nurses.js';
-import departmentRoutes from '../server/routes/departments.js';
-import appointmentRoutes from '../server/routes/appointments.js';
-import visitRoutes from '../server/routes/visits.js';
-import wardRoutes from '../server/routes/wards.js';
-import bedRoutes from '../server/routes/beds.js';
-import ipdRecordRoutes from '../server/routes/ipd-records.js';
-import dashboardRoutes from '../server/routes/dashboard.js';
-import labTestRoutes from '../server/routes/labTests.js';
-import radiologyRoutes from '../server/routes/radiology.js';
-import theatreRoutes from '../server/routes/theatres.js';
-import theatreProcedureRoutes from '../server/routes/theatre-procedures.js';
-import prescriptionRoutes from '../server/routes/prescriptions.js';
-import medicineRoutes from '../server/routes/medicines.js';
-import billingRoutes from '../server/routes/billing.js';
-import serviceRoutes from '../server/routes/services.js';
-import stockRoutes from '../server/routes/stock.js';
-import dispensingRoutes from '../server/routes/dispensing.js';
-import directDispensingRoutes from '../server/routes/directDispensing.js';
-import requisitionRoutes from '../server/routes/requisitions.js';
-import itemPricingRoutes from '../server/routes/itemPricing.js';
-import itemReceivingRoutes from '../server/routes/itemReceiving.js';
-import incomingItemsRoutes from '../server/routes/incomingItems.js';
-import corpsesRoutes from '../server/routes/corpses.js';
-import cabinetRoutes from '../server/routes/cabinets.js';
-import releaseRoutes from '../server/routes/releases.js';
-import errorHandler from '../server/middleware/errorHandler.js';
+import authRoutes from './server/routes/auth.js';
+import userRoutes from './server/routes/users.js';
+import patientRoutes from './server/routes/patients.js';
+import doctorRoutes from './server/routes/doctors.js';
+import surgeonRoutes from './server/routes/surgeons.js';
+import nurseRoutes from './server/routes/nurses.js';
+import departmentRoutes from './server/routes/departments.js';
+import appointmentRoutes from './server/routes/appointments.js';
+import visitRoutes from './server/routes/visits.js';
+import wardRoutes from './server/routes/wards.js';
+import bedRoutes from './server/routes/beds.js';
+import ipdRecordRoutes from './server/routes/ipd-records.js';
+import dashboardRoutes from './server/routes/dashboard.js';
+import labTestRoutes from './server/routes/labTests.js';
+import radiologyRoutes from './server/routes/radiology.js';
+import theatreRoutes from './server/routes/theatres.js';
+import theatreProcedureRoutes from './server/routes/theatre-procedures.js';
+import prescriptionRoutes from './server/routes/prescriptions.js';
+import medicineRoutes from './server/routes/medicines.js';
+import billingRoutes from './server/routes/billing.js';
+import serviceRoutes from './server/routes/services.js';
+import stockRoutes from './server/routes/stock.js';
+import dispensingRoutes from './server/routes/dispensing.js';
+import directDispensingRoutes from './server/routes/directDispensing.js';
+import requisitionRoutes from './server/routes/requisitions.js';
+import itemPricingRoutes from './server/routes/itemPricing.js';
+import itemReceivingRoutes from './server/routes/itemReceiving.js';
+import incomingItemsRoutes from './server/routes/incomingItems.js';
+import corpsesRoutes from './server/routes/corpses.js';
+import cabinetRoutes from './server/routes/cabinets.js';
+import releaseRoutes from './server/routes/releases.js';
+import errorHandler from './server/middleware/errorHandler.js';
 
 const app = express();
 
@@ -108,16 +108,55 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
 
-// CORS package (as backup)
-app.use(cors({
-  origin: '*',
+// CORS configuration - UPDATED FOR REMOTE ACCESS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'https://localhost:3000',
+  'https://localhost:5000',
+  'http://192.168.43.25:3000',
+  ''
+];
+
+// Add FRONTEND_URL from env if it exists
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+  // Also add version without trailing slash
+  allowedOrigins.push(process.env.FRONTEND_URL.replace(/\/$/, ''));
+}
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // In development, allow devtunnels and github.dev domains
+    if (process.env.NODE_ENV === 'development') {
+      if (origin.endsWith('.devtunnels.ms') || 
+          origin.endsWith('.preview.app.github.dev') ||
+          /^http:\/\/192\.168\.\d+\.\d+:\d+$/.test(origin) ||
+          /^http:\/\/172\.\d+\.\d+\.\d+:\d+$/.test(origin) ||
+          /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/.test(origin)) {
+        return callback(null, true);
+      }
+    }
+    
+    console.log(`❌ CORS blocked origin: ${origin}`);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 app.use(compression());
 
