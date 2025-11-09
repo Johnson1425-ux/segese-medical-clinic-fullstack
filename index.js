@@ -92,33 +92,20 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
 
-// CORS - Allow Vercel deployment
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      'http://localhost:3000',
-      'https://localhost:3000',
-      'https://segese-medical-clinic.vercel.app'
-    ].filter(Boolean);
-
-    if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
-      return callback(null, true);
-    }
-    
-    // Allow Vercel preview deployments
-    if (origin && (origin.includes('.vercel.app') || origin.includes('localhost'))) {
-      return callback(null, true);
-    }
-    
-    callback(new Error('Not allowed by CORS'));
-  },
+// CORS - Simplified configuration for Vercel
+app.use(cors({
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-};
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
 
-app.use(cors(corsOptions));
+// Explicitly handle preflight requests
+app.options('*', cors());
+
 app.use(compression());
 
 // Connect to database before handling requests
